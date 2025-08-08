@@ -13,10 +13,11 @@ import { UserButton } from "@/components/auth/UserButton";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckSquare, Plus, Trash2, Edit2, X, Check } from "lucide-react";
 import { useMutation, useQuery } from "convex/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Link } from "react-router";
 import { Progress } from "@/components/ui/progress";
+import ReactConfetti from "react-confetti";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -29,6 +30,22 @@ export default function Dashboard() {
   const [newTodo, setNewTodo] = useState("");
   const [editingId, setEditingId] = useState<Id<"todos"> | null>(null);
   const [editText, setEditText] = useState("");
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+    
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleAddTodo = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,8 +104,26 @@ export default function Dashboard() {
   const totalCount = todos?.length || 0;
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
+  useEffect(() => {
+    if (totalCount > 0 && completedCount === totalCount) {
+      toast("🎉 You've completed all your todos! Great job!");
+      setShowConfetti(true);
+      const timer = setTimeout(() => setShowConfetti(false), 6000); // Confetti for 6 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [completedCount, totalCount]);
+
   return (
     <Protected>
+      {showConfetti && (
+        <ReactConfetti
+          width={windowSize.width}
+          height={windowSize.height}
+          recycle={false}
+          numberOfPieces={400}
+          gravity={0.1}
+        />
+      )}
       <div className="min-h-screen bg-background text-foreground dark">
         <header className="border-b-2 bg-background sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
