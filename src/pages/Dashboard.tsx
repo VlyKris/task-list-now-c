@@ -10,12 +10,13 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserButton } from "@/components/auth/UserButton";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { CheckSquare, Plus, Trash2, Edit2, X, Check } from "lucide-react";
 import { useMutation, useQuery } from "convex/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Link } from "react-router";
+import { Progress } from "@/components/ui/progress";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -84,6 +85,7 @@ export default function Dashboard() {
 
   const completedCount = todos?.filter(todo => todo.completed).length || 0;
   const totalCount = todos?.length || 0;
+  const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   return (
     <Protected>
@@ -110,13 +112,14 @@ export default function Dashboard() {
             transition={{ duration: 0.5 }}
           >
             <Card className="mb-6 border-2 shadow-[8px_8px_0px_hsl(var(--border))] rounded-md">
-              <CardHeader className="border-b-2">
-                <CardTitle className="flex items-center justify-between">
-                  <span>Your Todos</span>
+              <CardHeader className="border-b-2 p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle>Your Todos</CardTitle>
                   <span className="text-sm font-normal text-muted-foreground">
                     {completedCount} of {totalCount} completed
                   </span>
-                </CardTitle>
+                </div>
+                <Progress value={progress} className="w-full" />
               </CardHeader>
               <CardContent className="p-6">
                 <form onSubmit={handleAddTodo} className="flex gap-2 mb-4">
@@ -132,70 +135,74 @@ export default function Dashboard() {
                 </form>
 
                 <div className="space-y-2">
-                  {todos?.map((todo) => (
-                    <motion.div
-                      key={todo._id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      className="flex items-center gap-3 p-3 rounded-md border-2 bg-card"
-                    >
-                      <Checkbox
-                        checked={todo.completed}
-                        onCheckedChange={() => handleToggleTodo(todo._id)}
-                        className="rounded-sm"
-                      />
-                      
-                      {editingId === todo._id ? (
-                        <div className="flex-1 flex items-center gap-2">
-                          <Input
-                            value={editText}
-                            onChange={(e) => setEditText(e.target.value)}
-                            className="flex-1 rounded-md border-2"
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") handleSaveEdit();
-                              if (e.key === "Escape") handleCancelEdit();
-                            }}
-                            autoFocus
-                          />
-                          <Button size="icon" variant="ghost" onClick={handleSaveEdit} className="rounded-md">
-                            <Check className="h-4 w-4" />
-                          </Button>
-                          <Button size="icon" variant="ghost" onClick={handleCancelEdit} className="rounded-md">
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <>
-                          <span
-                            className={`flex-1 ${
-                              todo.completed
-                                ? "line-through text-muted-foreground"
-                                : ""
-                            }`}
-                          >
-                            {todo.text}
-                          </span>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => handleStartEdit(todo._id, todo.text)}
-                            className="rounded-md"
-                          >
-                            <Edit2 className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => handleDeleteTodo(todo._id)}
-                            className="rounded-md"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </>
-                      )}
-                    </motion.div>
-                  ))}
+                  <AnimatePresence>
+                    {todos?.map((todo) => (
+                      <motion.div
+                        key={todo._id}
+                        layout
+                        initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, x: 50, scale: 0.95 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="flex items-center gap-3 p-3 rounded-md border-2 bg-card"
+                      >
+                        <Checkbox
+                          checked={todo.completed}
+                          onCheckedChange={() => handleToggleTodo(todo._id)}
+                          className="rounded-sm"
+                        />
+                        
+                        {editingId === todo._id ? (
+                          <div className="flex-1 flex items-center gap-2">
+                            <Input
+                              value={editText}
+                              onChange={(e) => setEditText(e.target.value)}
+                              className="flex-1 rounded-md border-2"
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") handleSaveEdit();
+                                if (e.key === "Escape") handleCancelEdit();
+                              }}
+                              autoFocus
+                            />
+                            <Button size="icon" variant="ghost" onClick={handleSaveEdit} className="rounded-md">
+                              <Check className="h-4 w-4" />
+                            </Button>
+                            <Button size="icon" variant="ghost" onClick={handleCancelEdit} className="rounded-md">
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <>
+                            <span
+                              className={`flex-1 ${
+                                todo.completed
+                                  ? "line-through text-muted-foreground"
+                                  : ""
+                              }`}
+                            >
+                              {todo.text}
+                            </span>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => handleStartEdit(todo._id, todo.text)}
+                              className="rounded-md"
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => handleDeleteTodo(todo._id)}
+                              className="rounded-md"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
 
                   {todos?.length === 0 && (
                     <div className="text-center py-8 text-muted-foreground border-2 rounded-md">
