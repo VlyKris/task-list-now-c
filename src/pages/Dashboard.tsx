@@ -87,15 +87,15 @@ export default function Dashboard() {
 
   return (
     <Protected>
-      <div className="min-h-screen bg-background">
-        <header className="border-b bg-card">
+      <div className="min-h-screen bg-background text-foreground dark">
+        <header className="border-b-2 bg-background sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2">
-              <CheckSquare className="h-6 w-6" />
-              <span className="font-semibold text-lg">Todo App</span>
+              <CheckSquare className="h-6 w-6 text-primary" />
+              <span className="font-semibold text-lg">TodoApp</span>
             </Link>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-muted-foreground hidden sm:inline">
                 Welcome back, {user?.name}!
               </span>
               <UserButton />
@@ -109,8 +109,8 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Card className="mb-6">
-              <CardHeader>
+            <Card className="mb-6 border-2 shadow-[8px_8px_0px_hsl(var(--border))] rounded-md">
+              <CardHeader className="border-b-2">
                 <CardTitle className="flex items-center justify-between">
                   <span>Your Todos</span>
                   <span className="text-sm font-normal text-muted-foreground">
@@ -118,15 +118,15 @@ export default function Dashboard() {
                   </span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 <form onSubmit={handleAddTodo} className="flex gap-2 mb-4">
                   <Input
                     value={newTodo}
                     onChange={(e) => setNewTodo(e.target.value)}
                     placeholder="Add a new todo..."
-                    className="flex-1"
+                    className="flex-1 rounded-md border-2"
                   />
-                  <Button type="submit" size="icon">
+                  <Button type="submit" size="icon" className="rounded-md border-2 shadow-[2px_2px_0px_hsl(var(--border))] hover:shadow-none active:shadow-none active:translate-x-0.5 active:translate-y-0.5 transition-all">
                     <Plus className="h-4 w-4" />
                   </Button>
                 </form>
@@ -138,11 +138,12 @@ export default function Dashboard() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 20 }}
-                      className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                      className="flex items-center gap-3 p-3 rounded-md border-2 bg-card"
                     >
                       <Checkbox
                         checked={todo.completed}
                         onCheckedChange={() => handleToggleTodo(todo._id)}
+                        className="rounded-sm"
                       />
                       
                       {editingId === todo._id ? (
@@ -150,17 +151,17 @@ export default function Dashboard() {
                           <Input
                             value={editText}
                             onChange={(e) => setEditText(e.target.value)}
-                            className="flex-1"
+                            className="flex-1 rounded-md border-2"
                             onKeyDown={(e) => {
                               if (e.key === "Enter") handleSaveEdit();
                               if (e.key === "Escape") handleCancelEdit();
                             }}
                             autoFocus
                           />
-                          <Button size="icon" variant="ghost" onClick={handleSaveEdit}>
+                          <Button size="icon" variant="ghost" onClick={handleSaveEdit} className="rounded-md">
                             <Check className="h-4 w-4" />
                           </Button>
-                          <Button size="icon" variant="ghost" onClick={handleCancelEdit}>
+                          <Button size="icon" variant="ghost" onClick={handleCancelEdit} className="rounded-md">
                             <X className="h-4 w-4" />
                           </Button>
                         </div>
@@ -179,6 +180,7 @@ export default function Dashboard() {
                             size="icon"
                             variant="ghost"
                             onClick={() => handleStartEdit(todo._id, todo.text)}
+                            className="rounded-md"
                           >
                             <Edit2 className="h-4 w-4" />
                           </Button>
@@ -186,6 +188,7 @@ export default function Dashboard() {
                             size="icon"
                             variant="ghost"
                             onClick={() => handleDeleteTodo(todo._id)}
+                            className="rounded-md"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -195,7 +198,7 @@ export default function Dashboard() {
                   ))}
 
                   {todos?.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
+                    <div className="text-center py-8 text-muted-foreground border-2 rounded-md">
                       <CheckSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
                       <p>No todos yet. Add one above to get started!</p>
                     </div>
